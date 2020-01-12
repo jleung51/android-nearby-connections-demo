@@ -43,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String DEVICE_ID = UUID.randomUUID().toString();
 
+    private static final String SERVICE_ID =  "com.jleung.nearbyconnectionsdemo";
+
     private static Strategy STRATEGY = P2P_CLUSTER;
 
     private static Map<String, String> connectedDevices = new HashMap<>();
@@ -98,7 +100,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public static void startAdvertising(final Context context, PayloadCallback payloadCallback) {
-        final String serviceId =  "com.jleung.nearbyconnectionsdemo";
 
         final ConnectionLifecycleCallback connectionLifecycleCallback =
                 createConnectionLifecycleCallback(context, payloadCallback);
@@ -108,14 +109,14 @@ public class MainActivity extends AppCompatActivity {
         Nearby.getConnectionsClient(context)
                 .startAdvertising(
                         DEVICE_ID,
-                        serviceId,
+                        SERVICE_ID,
                         connectionLifecycleCallback,
                         advertisingOptions)
                 .addOnSuccessListener(
                         new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
-                                Log.d(TAG, "Mesh network activated. Advertising.");
+                                Log.d(TAG, "Mesh network activated on [" + SERVICE_ID + "]. Advertising.");
                             }
                         })
                 .addOnFailureListener(
@@ -172,14 +173,14 @@ public class MainActivity extends AppCompatActivity {
 
         Nearby.getConnectionsClient(context)
                 .startDiscovery(
-                        DEVICE_ID,
+                        SERVICE_ID,
                         endpointDiscoveryCallback,
                         discoveryOptions)
                 .addOnSuccessListener(
                         new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
-                                Log.d(TAG, "Mesh network activated. Discovering.");
+                                Log.d(TAG, "Mesh network activated on [" + SERVICE_ID + "]. Discovering.");
                             }
                         })
                 .addOnFailureListener(
