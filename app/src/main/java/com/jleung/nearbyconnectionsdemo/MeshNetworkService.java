@@ -38,7 +38,7 @@ public class MeshNetworkService extends Service {
             public void run() {
 
                 Log.d(TAG, "Sending data.");
-                NearbyConnections.sendStringToAllEndpoints(context, Integer.toString(counter));
+                MainActivity.sendStringToAllEndpoints(context, Integer.toString(counter));
                 counter++;
 
                 repeatOperation();
