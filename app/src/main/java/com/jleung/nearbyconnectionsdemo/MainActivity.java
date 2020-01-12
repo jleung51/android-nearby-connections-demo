@@ -196,6 +196,7 @@ public class MainActivity extends AppCompatActivity {
         Payload bytesPayload = Payload.fromBytes(s.getBytes());
 
         for (String device : connectedDevices.keySet()) {
+
             Nearby.getConnectionsClient(context).sendPayload(device, bytesPayload);
         }
     }
@@ -253,14 +254,14 @@ public class MainActivity extends AppCompatActivity {
             // Check the payload type with payload.getType().
             byte[] receivedBytes = payload.asBytes();
             if (receivedBytes != null) {
-                Log.d(TAG, "Received data: " + Arrays.toString(receivedBytes));
+                Log.d(TAG, "Received data: " + new String(receivedBytes));
             }
             else {
                 Log.d(TAG, "Empty data received.");
             }
 
             TextView view = thisActivity.findViewById(R.id.output);
-            view.setText("Connected.\nLatest received data: " + Arrays.toString(receivedBytes));
+            view.setText("Connected.\nLatest received data: " + new String(receivedBytes));
         }
 
         @Override
