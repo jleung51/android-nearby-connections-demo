@@ -76,7 +76,7 @@ public class NearbyConnections {
                         new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                Log.d(TAG, "Unable to activate mesh network.");
+                                Log.d(TAG, "Unable to activate mesh network advertising: " + e.getMessage());
                             }
                         });
     }
@@ -95,6 +95,8 @@ public class NearbyConnections {
                     public void onEndpointFound(
                             @NonNull String endpointId, @NonNull DiscoveredEndpointInfo info) {
 
+                        Log.d(TAG, "Discovered device [" + endpointId + "].");
+
                         Nearby.getConnectionsClient(context)
                                 .requestConnection(
                                         DEVICE_ID,
@@ -104,14 +106,14 @@ public class NearbyConnections {
                                         new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void unused) {
-                                                Log.d(TAG, "Mesh network activated. Discovering.");
+                                                Log.d(TAG, "Connected (as discoverer).");
                                             }
                                         })
                                 .addOnFailureListener(
                                         new OnFailureListener() {
                                             @Override
                                             public void onFailure(@NonNull Exception e) {
-                                                // Nearby Connections failed to request the connection.
+                                                Log.d(TAG, "Failed to connect as discoverer: " + e.getMessage());
                                             }
                                         });
                     }
@@ -131,14 +133,14 @@ public class NearbyConnections {
                         new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
-                                // We're discovering!
+                                Log.d(TAG, "Mesh network activated. Discovering.");
                             }
                         })
                 .addOnFailureListener(
                         new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
-                                // We're unable to start discovering.
+                                Log.d(TAG, "Unable to activate mesh network discovery: " + e.getMessage());
                             }
                         });
     }
@@ -160,6 +162,8 @@ public class NearbyConnections {
                     @NonNull String endpointId,
                     @NonNull ConnectionInfo connectionInfo) {
 
+                Log.d(TAG, "Found device [" + endpointId + "].");
+
                 // Automatically accept the connection on both sides.
                 Nearby.getConnectionsClient(context)
                         .acceptConnection(endpointId, payloadCallback);
@@ -170,17 +174,16 @@ public class NearbyConnections {
                                            @NonNull ConnectionResolution result) {
                 switch (result.getStatus().getStatusCode()) {
                     case ConnectionsStatusCodes.STATUS_OK:
-                        Log.d(TAG, "Connected to device [" + endpointId + "].");
+                        Log.i(TAG, "Connected to device [" + endpointId + "].");
                         connectedDevices.put(endpointId, endpointId);
                         break;
                     case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
-                        // The connection was rejected by one or both sides.
+                        Log.e(TAG, "Connection rejected by x4device [" + endpointId + "].");
                         break;
                     case ConnectionsStatusCodes.STATUS_ERROR:
-                        Log.d(TAG, "Unable to connect to device [" + endpointId + "].");
-                        break;
+                        Log.e(TAG, "Unable to connect to device [" + endpointId + "].");
                     default:
-                        // Unknown status code
+                        Log.e(TAG, "Unable to connect to device [" + endpointId + "].");
                 }
             }
 

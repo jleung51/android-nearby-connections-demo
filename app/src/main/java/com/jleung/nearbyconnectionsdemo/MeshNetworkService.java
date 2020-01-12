@@ -18,6 +18,7 @@ public class MeshNetworkService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.d(TAG, "Initialized.");
     }
 
     @Override

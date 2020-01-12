@@ -33,10 +33,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        NearbyConnections.startAdvertising(this, new ReceivePayloadListener());
-
         requestPermissions(this, Manifest.permission.ACCESS_FINE_LOCATION);
 
+        NearbyConnections.startAdvertising(this, new ReceivePayloadListener());
+        NearbyConnections.startDiscovering(this, new ReceivePayloadListener());
 
         startService(new Intent(this, MeshNetworkService.class));
     }
