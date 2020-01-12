@@ -22,6 +22,8 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import static com.google.android.gms.nearby.connection.Strategy.P2P_CLUSTER;
@@ -34,6 +36,8 @@ public class NearbyConnections {
     private static final String DEVICE_ID = UUID.randomUUID().toString();
 
     private static Strategy STRATEGY = P2P_CLUSTER;
+
+    private static Map<String, String> connectedDevices = new HashMap<>();
 
     @SuppressWarnings("unused")
     public static String getDeviceId() {
@@ -48,7 +52,7 @@ public class NearbyConnections {
     }
 
     public static void startAdvertising(final Context context, PayloadCallback payloadCallback) {
-        final String serviceId =  context.getString(R.string.package_name);
+        final String serviceId =  "com.jleung.nearbyconnectionsdemo";
 
         final ConnectionLifecycleCallback connectionLifecycleCallback =
                 createConnectionLifecycleCallback(context, payloadCallback);
@@ -65,7 +69,7 @@ public class NearbyConnections {
                         new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
-                                Log.d(TAG, "Mesh network activated.");
+                                Log.d(TAG, "Mesh network activated. Advertising.");
                             }
                         })
                 .addOnFailureListener(
@@ -100,8 +104,7 @@ public class NearbyConnections {
                                         new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void unused) {
-                                                // We successfully requested a connection. Now both sides
-                                                // must accept before the connection is established.
+                                                Log.d(TAG, "Mesh network activated. Discovering.");
                                             }
                                         })
                                 .addOnFailureListener(
@@ -140,6 +143,14 @@ public class NearbyConnections {
                         });
     }
 
+    public static void sendStringToAllEndpoints(Context context, String s) {
+        Payload bytesPayload = Payload.fromBytes(s.getBytes());
+
+        for (String device : connectedDevices.keySet()) {
+            Nearby.getConnectionsClient(context).sendPayload(device, bytesPayload);
+        }
+    }
+
     private static ConnectionLifecycleCallback createConnectionLifecycleCallback(
             final Context context,
             final PayloadCallback payloadCallback) {
@@ -159,13 +170,14 @@ public class NearbyConnections {
                                            @NonNull ConnectionResolution result) {
                 switch (result.getStatus().getStatusCode()) {
                     case ConnectionsStatusCodes.STATUS_OK:
-                        // We're connected! Can now start sending and receiving data.
+                        Log.d(TAG, "Connected to device [" + endpointId + "].");
+                        connectedDevices.put(endpointId, endpointId);
                         break;
                     case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
                         // The connection was rejected by one or both sides.
                         break;
                     case ConnectionsStatusCodes.STATUS_ERROR:
-                        // The connection broke before it was able to be accepted.
+                        Log.d(TAG, "Unable to connect to device [" + endpointId + "].");
                         break;
                     default:
                         // Unknown status code
@@ -174,7 +186,8 @@ public class NearbyConnections {
 
             @Override
             public void onDisconnected(@NonNull String endpointId) {
-                // No action taken
+                Log.d(TAG, "Disconnected from device [" + endpointId + "].");
+                connectedDevices.remove(endpointId);
             }
         };
     }
